@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp Mirror</title>
+  <style>
+    body { font-family: Arial; display:flex; height:100vh; margin:0; align-items:center; justify-content:center; background:#f4f4f4; }
+    .box { background:white; padding:20px; border-radius:10px; width:350px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+    img { width:250px; height:250px; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Scan QR to Login</h2>
+    <p id="status">Connecting…</p>
+    <div id="qrHolder">Waiting for QR…</div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('socket connected', socket.id);
+      socket.emit('request-status');
+    });
+
+    socket.on('status', (d) => {
+      document.getElementById('status').innerText = "Status: " + (d.status || 'unknown');
+    });
+
+    socket.on('qr', (data) => {
+      // Use template literal so ${data.qr} is expanded correctly
+      document.getElementById('qrHolder').innerHTML =
+        `<img src="${data.qr}" alt="QR Code">`;
+      document.getElementById('status').innerText = 'Status: scan QR';
+    });
+  </script>
+</body>
+</html>
